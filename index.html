@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>글자 변환기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5em;
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 10px 0;
+      font-size: 1em;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .clear-button {
+      background-color: #f5deb3;
+      color: black;
+    }
+
+    .clear-button:hover {
+      background-color: #f5dfbf;
+    }
+  </style>
+</head>
+<body>
+  <h1>글자 변환기</h1>
+  <textarea id="input" rows="6" placeholder="여기에 텍스트를 입력하세요..."></textarea>
+  <button onclick="convert()">변환!</button>
+  <button class="clear-button" onclick="clearInput()">인풋 지우기</button>
+  <textarea id="output" rows="6" readonly placeholder="변환된 결과가 여기에 나와요"></textarea>
+  <button onclick="copyToClipboard()">복사하기</button>
+
+  <script>
+    function convert() {
+      const text = document.getElementById("input").value;
+      const conversions = {
+        "char": "user",
+        "user": "char"
+      };
+
+      let result = text.replace(/\{\{(.*?)\}\}/g, (_, word) => {
+        return "{{" + (conversions[word] || word) + "}}";
+      });
+
+      result = result.replace(/<([^>]+)>/g, (_, word) => {
+        return "<" + (conversions[word] || word) + ">";
+      });
+
+      document.getElementById("output").value = result;
+    }
+
+    function copyToClipboard() {
+      const output = document.getElementById("output");
+      output.select();
+      output.setSelectionRange(0, 99999); // for mobile, because of course
+      document.execCommand("copy");
+      alert("복사 완료!");
+    }
+
+    function clearInput() {
+      document.getElementById("input").value = "";
+    }
+  </script>
+</body>
+</html>
