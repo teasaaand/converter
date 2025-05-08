@@ -64,22 +64,22 @@
 
   <script>
     function convert() {
-      const text = document.getElementById("input").value;
-      const conversions = {
-        "char": "user",
-        "user": "char"
-      };
+  const text = document.getElementById("input").value;
+  const conversions = {
+    "char": "user",
+    "user": "char"
+  };
 
-      let result = text.replace(/\{\{(.*?)\}\}/g, (_, word) => {
-        return "{{" + (conversions[word] || word) + "}}";
-      });
+  let result = text.replace(/\{\{(.*?)\}\}/gi, (_, word) => {
+    return "{{" + (conversions[word.toLowerCase()] || word).toLowerCase() + "}}";
+  });
 
-      result = result.replace(/<([^>]+)>/g, (_, word) => {
-        return "<" + (conversions[word] || word) + ">";
-      });
+  result = result.replace(/<([^>]+)>/gi, (_, word) => {
+    return "<" + (conversions[word.toLowerCase()] || word).toLowerCase() + ">";
+  });
 
-      document.getElementById("output").value = result;
-    }
+  document.getElementById("output").value = result;
+}
 
     function copyToClipboard() {
       const output = document.getElementById("output");
