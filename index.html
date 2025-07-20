@@ -52,6 +52,25 @@
     .clear-button:hover {
       background-color: #f5dfbf;
     }
+
+    #history {
+      margin-top: 20px;
+    }
+
+    .history-item {
+      padding: 8px;
+      cursor: pointer;
+      font-size: 0.9em;
+      color: #606060;
+    }
+
+    .history-item:not(:first-child) {
+      border-top: 1px solid #606060;
+    }
+
+    .history-item:hover {
+      background-color: #ddd;
+    }
   </style>
 </head>
 <body>
@@ -62,35 +81,71 @@
   <textarea id="output" rows="6" readonly placeholder="변환된 결과가 여기에 나와요"></textarea>
   <button onclick="copyToClipboard()">복사하기</button>
 
+  <h2>최근 변환 결과</h2>
+  <div id="history"></div>
+
   <script>
- function convert() {
-   const text = document.getElementById("input").value;
-   const conversions = {
-    "char": "user",
-    "user": "char"
-  };
+    const conversions = {
+      "char": "user",
+      "user": "char"
+    };
 
-  let result = text.replace(/\{\{(.*?)\}\}/gi, (_, word) => {
-    return "{{" + (conversions[word.toLowerCase()] || word).toLowerCase() + "}}";
-  });
+    const history = [];
 
-  result = result.replace(/<([^>]+)>/gi, (_, word) => {
-    return "<" + (conversions[word.toLowerCase()] || word).toLowerCase() + ">";
-  });
+    function convert() {
+      const text = document.getElementById("input").value;
 
-  document.getElementById("output").value = result;
-}
+      let result = text.replace(/\{\{(.*?)\}\}/gi, (_, word) => {
+        return "{{" + (conversions[word.toLowerCase()] || word).toLowerCase() + "}}";
+      });
+
+      result = result.replace(/<([^>]+)>/gi, (_, word) => {
+        return "<" + (conversions[word.toLowerCase()] || word).toLowerCase() + ">";
+      });
+
+      document.getElementById("output").value = result;
+      updateHistory(result);
+    }
 
     function copyToClipboard() {
       const output = document.getElementById("output");
       output.select();
-      output.setSelectionRange(0, 99999); // for mobile, because of course
+      output.setSelectionRange(0, 99999);
       document.execCommand("copy");
       alert("복사 완료!");
     }
 
     function clearInput() {
       document.getElementById("input").value = "";
+    }
+
+    function updateHistory(result) {
+      history.unshift(result);
+      if (history.length > 3) history.pop();
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const historyDiv = document.getElementById("history");
+      historyDiv.innerHTML = "";
+
+      history.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "history-item";
+        const text = document.createElement("span");
+        text.textContent = `${item.substring(0, 50)}${item.length > 50 ? "..." : ""}`;
+        div.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(item);
+            alert("복사 완료!");
+          } catch (err) {
+            console.error("복사 실패:", err);
+            alert("복사에 실패했어요. 브라우저가 고물일 수도...");
+          }
+        };
+        div.appendChild(text);
+        historyDiv.appendChild(div);
+      });
     }
   </script>
 </body>
